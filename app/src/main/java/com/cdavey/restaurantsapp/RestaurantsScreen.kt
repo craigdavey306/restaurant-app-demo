@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.cdavey.restaurantsapp.ui.theme.RestaurantsAppTheme
 
 @Composable
-fun RestaurantsScreen(modifier: Modifier) {
+fun RestaurantsScreen(modifier: Modifier, onItemClick: (id: Int) -> Unit) {
     val viewModel: RestaurantsViewModel = viewModel()
 
     LazyColumn(
@@ -31,15 +31,20 @@ fun RestaurantsScreen(modifier: Modifier) {
         modifier = modifier
     ) {
         items(viewModel.state.value) { restaurant ->
-            RestaurantItem(restaurant) { id ->
-                viewModel.toggleFavorite(id)
-            }
+            RestaurantItem(
+                restaurant,
+                onFavoriteClick = { id, oldValue -> viewModel.toggleFavorite(id, oldValue) },
+                onItemClick = { id -> onItemClick(id) })
         }
     }
 }
 
 @Composable
-fun RestaurantItem(item: Restaurant, onClick: (id: Int) -> Unit) {
+fun RestaurantItem(
+    item: Restaurant,
+    onFavoriteClick: (id: Int, oldValue: Boolean) -> Unit,
+    onItemClick: (id: Int) -> Unit
+) {
     val icon = when {
         item.isFavorite -> Icons.Filled.Favorite
         else -> Icons.Filled.FavoriteBorder
@@ -49,7 +54,9 @@ fun RestaurantItem(item: Restaurant, onClick: (id: Int) -> Unit) {
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
         ),
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier
+            .padding(8.dp)
+            .clickable { onItemClick(item.id) }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -62,14 +69,14 @@ fun RestaurantItem(item: Restaurant, onClick: (id: Int) -> Unit) {
                 Modifier.weight(0.7f)
             )
             RestaurantIcon(icon, Modifier.weight(0.15f)) {
-                onClick(item.id)
+                onFavoriteClick(item.id, item.isFavorite)
             }
         }
     }
 }
 
 @Composable
-private fun RestaurantIcon(icon: ImageVector, modifier: Modifier, onclick: () -> Unit = { }) {
+fun RestaurantIcon(icon: ImageVector, modifier: Modifier, onclick: () -> Unit = { }) {
     Image(
         imageVector = icon,
         contentDescription = "Restaurant icon",
@@ -80,8 +87,13 @@ private fun RestaurantIcon(icon: ImageVector, modifier: Modifier, onclick: () ->
 }
 
 @Composable
-private fun RestaurantDetails(title: String, description: String, modifier: Modifier) {
-    Column(modifier = modifier) {
+fun RestaurantDetails(
+    title: String,
+    description: String,
+    modifier: Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start
+) {
+    Column(modifier = modifier, horizontalAlignment = horizontalAlignment) {
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall
@@ -95,10 +107,3 @@ private fun RestaurantDetails(title: String, description: String, modifier: Modi
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    RestaurantsAppTheme() {
-        RestaurantsScreen(Modifier.padding())
-    }
-}
