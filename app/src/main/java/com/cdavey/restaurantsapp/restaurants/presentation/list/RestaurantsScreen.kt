@@ -1,10 +1,12 @@
-package com.cdavey.restaurantsapp
+package com.cdavey.restaurantsapp.restaurants.presentation.list
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,24 +20,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cdavey.restaurantsapp.ui.theme.RestaurantsAppTheme
+import com.cdavey.restaurantsapp.restaurants.presentation.list.RestaurantsViewModel
+import com.cdavey.restaurantsapp.restaurants.domain.Restaurant
 
 @Composable
-fun RestaurantsScreen(modifier: Modifier, onItemClick: (id: Int) -> Unit) {
-    val viewModel: RestaurantsViewModel = viewModel()
+fun RestaurantsScreen(
+    state: RestaurantsScreenState,
+    modifier: Modifier,
+    onItemClick: (id: Int) -> Unit,
+    onFavoriteClick: (id: Int, oldValue: Boolean) -> Unit
+) {
 
-    LazyColumn(
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-        modifier = modifier
-    ) {
-        items(viewModel.state.value) { restaurant ->
-            RestaurantItem(
-                restaurant,
-                onFavoriteClick = { id, oldValue -> viewModel.toggleFavorite(id, oldValue) },
-                onItemClick = { id -> onItemClick(id) })
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            modifier = modifier
+        ) {
+            items(state.restaurants) { restaurant ->
+                RestaurantItem(
+                    restaurant,
+                    onFavoriteClick = { id, oldValue -> onFavoriteClick(id, oldValue) },
+                    onItemClick = { id -> onItemClick(id) })
+            }
         }
+        if (state.isLoading) CircularProgressIndicator()
+
+        if (state.error != null) Text(state.error)
     }
 }
 

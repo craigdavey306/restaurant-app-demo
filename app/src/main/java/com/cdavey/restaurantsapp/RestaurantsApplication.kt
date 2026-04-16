@@ -1,15 +1,8 @@
 package com.cdavey.restaurantsapp
 
 import android.app.Application
-import android.content.Context
+import dagger.hilt.android.HiltAndroidApp
 
-class RestaurantsApplication: Application() {
-    init {
-        app = this
-    }
-
-    companion object {
-        private lateinit var app: RestaurantsApplication
-        fun getAppContext(): Context = app.applicationContext
-    }
+@HiltAndroidApp
+class RestaurantsApplication : Application() {
 }

@@ -1,8 +1,7 @@
-package com.cdavey.restaurantsapp
+package com.cdavey.restaurantsapp.restaurants.presentation.details
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
@@ -12,24 +11,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cdavey.restaurantsapp.restaurants.presentation.list.RestaurantDetails
+import com.cdavey.restaurantsapp.restaurants.presentation.list.RestaurantIcon
 
 @Composable
-fun RestaurantDetailScreen(modifier: Modifier) {
+fun RestaurantDetailsScreen() {
     val viewModel: RestaurantDetailsViewModel = viewModel()
     val item = viewModel.state.value
     if (item != null) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.fillMaxWidth(0.85f)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            RestaurantIcon(Icons.Filled.Place, Modifier.padding(top = 32.dp, bottom = 32.dp))
-
+            RestaurantIcon(
+                Icons.Filled.Place,
+                Modifier.padding(top = 32.dp, bottom = 32.dp)
+            )
             RestaurantDetails(
-                item.title, item.description, Modifier.padding(bottom = 32.dp),
+                item.title,
+                item.description,
+                Modifier.padding(bottom = 32.dp),
                 Alignment.CenterHorizontally
             )
-
-            Text("More inf coming soon!")
+            Text("More info coming soon!")
         }
     }
 }
