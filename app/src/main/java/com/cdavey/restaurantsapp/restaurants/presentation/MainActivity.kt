@@ -42,15 +42,13 @@ class MainActivity : ComponentActivity() {
 /** Add all application screen here */
 @Composable
 private fun RestaurantsApp(paddingValues: PaddingValues) {
-    val modifier: Modifier = Modifier.padding(paddingValues)
     val navController = rememberNavController()
     NavHost(navController, startDestination = "restaurants") {
         composable(route = "restaurants") {
             val viewModel: RestaurantsViewModel = hiltViewModel()
             RestaurantsScreen(
                 state = viewModel.state.value,
-                modifier = modifier,
-                onItemClick ={ id ->
+                onItemClick = { id ->
                     navController.navigate("restaurants/$id")
                 },
                 onFavoriteClick = { id, oldValue -> viewModel.toggleFavorite(id, oldValue) }
@@ -66,8 +64,7 @@ private fun RestaurantsApp(paddingValues: PaddingValues) {
             deepLinks = listOf(navDeepLink {
                 uriPattern = "www.restaurantsapp.details.com/{restaurant_id}"
             })
-        ) { navStackEntry ->
-            val id = navStackEntry.arguments?.getInt("restaurant_id")
+        ) {
             RestaurantDetailsScreen()
         }
     }

@@ -1,11 +1,12 @@
 package com.cdavey.restaurantsapp.restaurants.data
 
+import com.cdavey.restaurantsapp.restaurants.data.di.IoDispatcher
 import com.cdavey.restaurantsapp.restaurants.domain.Restaurant
 import com.cdavey.restaurantsapp.restaurants.data.local.LocalRestaurant
 import com.cdavey.restaurantsapp.restaurants.data.local.PartialLocalRestaurant
 import com.cdavey.restaurantsapp.restaurants.data.local.RestaurantDao
 import com.cdavey.restaurantsapp.restaurants.data.remote.RestaurantsApiService
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.net.ConnectException
@@ -17,18 +18,11 @@ import javax.inject.Singleton
 class RestaurantsRepository @Inject constructor(
     private val restInterface: RestaurantsApiService,
     private val restaurantsDao: RestaurantDao,
+    @param:IoDispatcher private val dispatcher: CoroutineDispatcher
 ) {
-    suspend fun getRemoteRestaurant(id: Int): Restaurant {
-        return withContext(Dispatchers.IO) {
-            val responseMap = restInterface.getRestaurant(id)
-            return@withContext responseMap.values.first().let {
-                Restaurant(id = it.id, title = it.title, description = it.description)
-            }
-        }
-    }
 
     suspend fun loadAllRestaurants(): Unit {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             try {
                 refreshCache()
             } catch (e: Exception) {
@@ -48,7 +42,7 @@ class RestaurantsRepository @Inject constructor(
     }
 
     suspend fun getRestaurants(): List<Restaurant> {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             return@withContext restaurantsDao.getAll().map {
                 Restaurant(it.id, it.title, it.description, it.isFavorite)
             }
@@ -56,7 +50,7 @@ class RestaurantsRepository @Inject constructor(
     }
 
     suspend fun toggleFavoriteRestaurant(id: Int, value: Boolean) =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             restaurantsDao.update(
                 PartialLocalRestaurant(id = id, isFavorite = value)
             )

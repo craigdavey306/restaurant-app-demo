@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,33 +21,41 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.cdavey.restaurantsapp.restaurants.presentation.list.RestaurantsViewModel
 import com.cdavey.restaurantsapp.restaurants.domain.Restaurant
+import com.cdavey.restaurantsapp.restaurants.presentation.Description
 
 @Composable
 fun RestaurantsScreen(
     state: RestaurantsScreenState,
-    modifier: Modifier,
     onItemClick: (id: Int) -> Unit,
     onFavoriteClick: (id: Int, oldValue: Boolean) -> Unit
 ) {
 
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-            modifier = modifier
-        ) {
-            items(state.restaurants) { restaurant ->
-                RestaurantItem(
-                    restaurant,
-                    onFavoriteClick = { id, oldValue -> onFavoriteClick(id, oldValue) },
-                    onItemClick = { id -> onItemClick(id) })
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(innerPadding)) {
+            LazyColumn(
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(state.restaurants) { restaurant ->
+                    RestaurantItem(
+                        restaurant,
+                        onFavoriteClick = { id, oldValue -> onFavoriteClick(id, oldValue) },
+                        onItemClick = { id -> onItemClick(id) })
+                }
             }
-        }
-        if (state.isLoading) CircularProgressIndicator()
+            if (state.isLoading) CircularProgressIndicator(
+                Modifier.semantics {
+                    this.contentDescription = Description.RESTAURANTS_LOADING
+                }
+            )
 
-        if (state.error != null) Text(state.error)
+            if (state.error != null) Text(state.error)
+        }
     }
 }
 
